@@ -1,25 +1,3 @@
-<script setup>
-import axios from 'axios'
-import {ref, onMounted, watch, watchEffect} from 'vue'
-
-
-const latestProducts = ref([])
-
-const getAll =  async ()=>{
-  try {
-    let response = await axios.get('/api/v1/latest-products')
-      latestProducts.value = response.data
-    
-  } catch (error) {
-    console.log(error)
-    
-  }
-          
-}
-
-watchEffect(getAll)
-
-</script>
 
 <template>
   <div class="home">
@@ -52,9 +30,12 @@ watchEffect(getAll)
             <figure class="image mb-4">
               <img v-bind:src="product.get_thumbnail">
             </figure>
-            <h3 class="is-size-4"> {{product.name}} </h3>
+            <p class="is-size-4"> {{product.name}} </p>
 
-            view details
+              <router-link v-bind:to= "product.get_absolute_url" class="button  is-dark mt-4" >
+                View more details
+              </router-link>
+
           </div>
 
         </div>
@@ -63,6 +44,38 @@ watchEffect(getAll)
 
 </template>
 
-<style>
+<script>
+import axios from 'axios'
 
-</style>
+export default {
+  name: 'Home',
+  data(){
+    return {
+      latestProducts:[],
+    }
+  },
+  mounted(){
+    this.getLatestProducts()
+    document.title = 'Home | Djackets'
+  },
+  methods: {
+    async getLatestProducts() {
+      this.$store.commit('setIsLoading', true)
+    
+      try {
+        let response = await axios.get('/api/v1/latest-products')
+         this.latestProducts = response.data
+         console.log("RESPONSE DATA",response.data)
+        
+      } catch (error) {
+        console.log(error)
+        
+      }
+
+      this.$store.commit('setIsLoading', false)        
+    }
+  }
+
+};
+
+</script>
